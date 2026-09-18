@@ -33,7 +33,8 @@ namespace Roguelike.Combat
 
         private readonly Random rng;
 
-        public CharacterInstance(CharacterDefinition definition, int? seed = null)
+        public CharacterInstance(CharacterDefinition definition, AttackArmorMatchTable matchTable, int? seed = null) 
+        : base(matchTable)
         {
             Definition = definition;
             rng = seed.HasValue ? new Random(seed.Value) : new Random();

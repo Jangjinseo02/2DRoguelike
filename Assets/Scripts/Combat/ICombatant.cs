@@ -1,5 +1,6 @@
 using Roguelike.Data;
 using Roguelike.Data.Status;
+using Roguelike.Data.Equipment;
 
 namespace Roguelike.Combat
 {
@@ -11,9 +12,12 @@ namespace Roguelike.Combat
         int CurrentHealth { get; }
         int Block { get; }
         bool IsAlive { get; }
+        AttackType CurrentAttackType { get; }
+        ArmorType CurrentArmorType { get; }
 
         float GetStat(StatType type);
         void TakeDamage(int amount);
+        void TakeDamage(int amount, AttackType attackType, bool penetrates);
         void GainBlock(int amount);
         void Heal(int amount);
         void ModifyMaxHealth(int amount);

@@ -20,9 +20,13 @@ namespace Roguelike.Combat
         public int Block { get; protected set; }
         public bool IsAlive => CurrentHealth > 0;
 
+        public AttackType CurrentAttackType => EquippedItems.TryGetValue(EquipmentSlot.Weapon, out var weapon) && weapon != null ? weapon.attackType : AttackType.None;
+        public ArmorType CurrentArmorType => EquippedItems.TryGetValue(EquipmentSlot.Armor, out var armor) && armor != null ? armor.armorType : ArmorType.None;
+
         public Dictionary<EquipmentSlot, EquipmentDefinition> EquippedItems { get; } = new Dictionary<EquipmentSlot, EquipmentDefinition>();
         public List<TraitDefinition> Traits { get; } = new List<TraitDefinition>();
 
+        protected readonly AttackArmorMatchTable matchTable;
         protected readonly List<ActiveStatModifier> statModifiers = new List<ActiveStatModifier>();
         protected readonly List<ActiveStatusEffect> statusEffects = new List<ActiveStatusEffect>();
         public IReadOnlyList<ActiveStatusEffect> StatusEffects => statusEffects;
@@ -37,6 +41,11 @@ namespace Roguelike.Combat
 
         /// <summary>Health just reached 0. Raised once, after Damaged/Changed for the killing hit.</summary>
         public event Action Died;
+
+        protected CombatantInstance(AttackArmorMatchTable matchTable)
+        {
+            this.matchTable = matchTable;
+        }
 
         public void AddTrait(TraitDefinition trait)
         {
@@ -93,6 +102,22 @@ namespace Roguelike.Combat
             RaiseChanged();
             if (!IsAlive)
                 Died?.Invoke();
+        }
+
+        public virtual void TakeDamage(int amount, AttackType attackType, bool penetrates)
+        {
+            float result = amount;
+            
+            //상성 배율 계산
+            float multiplier = matchTable != null ? matchTable.GetMultiplier(attackType, CurrentArmorType) : 1f;
+            // 관통 시 유리한 배율은 그대로, 불리한 배율은 1배로
+            if(penetrates) multiplier = Mathf.Max(multiplier, 1f); 
+            
+            // 데미지 계산(데미지 * 배율)
+            amount = Mathf.RoundToInt(result * multiplier);
+
+            // 데미지 할당(방어도와 hp 처리는 기본형에게)
+            TakeDamage(amount);
         }
 
         public virtual void GainBlock(int amount)
