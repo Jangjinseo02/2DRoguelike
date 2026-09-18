@@ -1,0 +1,187 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Roguelike.Data;
+using Roguelike.Data.Equipment;
+using Roguelike.Data.Traits;
+using Roguelike.Data.Status;
+
+namespace Roguelike.Combat
+{
+    /// <summary>
+    /// Shared runtime state and behaviour for anything that fights: health/block, stat
+    /// modifiers, and status effects. CharacterInstance and EnemyInstance both build on this.
+    /// </summary>
+    public abstract class CombatantInstance : ICombatant
+    {
+        public string DisplayName { get; protected set; }
+        public int MaxHealth { get; protected set; }
+        public int CurrentHealth { get; protected set; }
+        public int Block { get; protected set; }
+        public bool IsAlive => CurrentHealth > 0;
+
+        public Dictionary<EquipmentSlot, EquipmentDefinition> EquippedItems { get; } = new Dictionary<EquipmentSlot, EquipmentDefinition>();
+        public List<TraitDefinition> Traits { get; } = new List<TraitDefinition>();
+
+        protected readonly List<ActiveStatModifier> statModifiers = new List<ActiveStatModifier>();
+        protected readonly List<ActiveStatusEffect> statusEffects = new List<ActiveStatusEffect>();
+        public IReadOnlyList<ActiveStatusEffect> StatusEffects => statusEffects;
+
+        /// <summary>Any displayed number (HP, max HP, block, and subclass values like energy) changed.
+        /// Views re-read the properties rather than being told the delta.</summary>
+        public event Action Changed;
+
+        /// <summary>A hit landed: (health lost, damage absorbed by block). Raised even when fully blocked,
+        /// so presentation can still react to the hit. Raised before Changed.</summary>
+        public event Action<int, int> Damaged;
+
+        /// <summary>Health just reached 0. Raised once, after Damaged/Changed for the killing hit.</summary>
+        public event Action Died;
+
+        public void AddTrait(TraitDefinition trait)
+        {
+            Traits.Add(trait);
+            foreach (var modifier in trait.passiveStatModifiers)
+                ApplyStatModifier(modifier, trait);
+        }
+
+        public void RemoveTrait(TraitDefinition trait)
+        {
+            Traits.Remove(trait);
+            RemoveStatModifiersFromSource(trait);
+        }
+
+        protected void RaiseChanged() => Changed?.Invoke();
+
+        public float GetStat(StatType type)
+        {
+            float sum = 0f;
+            float multiplier = 1f;
+            bool hasOverride = false;
+            float overrideValue = 0f;
+
+            foreach (var modifier in statModifiers)
+            {
+                if (modifier.data.statType != type) continue;
+                switch (modifier.data.operation)
+                {
+                    case ModifierOperation.Add:
+                        sum += modifier.data.value;
+                        break;
+                    case ModifierOperation.Multiply:
+                        multiplier *= modifier.data.value;
+                        break;
+                    case ModifierOperation.Override:
+                        hasOverride = true;
+                        overrideValue = modifier.data.value;
+                        break;
+                }
+            }
+
+            return hasOverride ? overrideValue : sum * multiplier;
+        }
+
+        public virtual void TakeDamage(int amount)
+        {
+            if (amount <= 0 || !IsAlive) return;
+            int blocked = Mathf.Min(Block, amount);
+            int healthBefore = CurrentHealth;
+            Block -= blocked;
+            CurrentHealth = Mathf.Max(0, CurrentHealth - (amount - blocked));
+
+            Damaged?.Invoke(healthBefore - CurrentHealth, blocked);
+            RaiseChanged();
+            if (!IsAlive)
+                Died?.Invoke();
+        }
+
+        public virtual void GainBlock(int amount)
+        {
+            Block += Mathf.Max(0, amount);
+            RaiseChanged();
+        }
+
+        public virtual void Heal(int amount)
+        {
+            CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + Mathf.Max(0, amount));
+            RaiseChanged();
+        }
+
+        public virtual void ModifyMaxHealth(int amount)
+        {
+            MaxHealth = Mathf.Max(1, MaxHealth + amount);
+            if (amount > 0) CurrentHealth += amount;
+            CurrentHealth = Mathf.Clamp(CurrentHealth, 0, MaxHealth);
+            RaiseChanged();
+        }
+
+        public void ApplyStatModifier(StatModifier modifier, object source) =>
+            statModifiers.Add(new ActiveStatModifier { data = modifier, source = source });
+
+        public void RemoveStatModifiersFromSource(object source) =>
+            statModifiers.RemoveAll(m => m.source == source);
+
+        public void ApplyStatus(StatusEffectDefinition status, int stacks)
+        {
+            if (status == null || stacks <= 0) return;
+            var existing = statusEffects.Find(s => s.definition == status);
+            if (existing != null)
+            {
+                if (status.stackBehavior == StatusStackBehavior.Intensity)
+                    existing.stacks += stacks;
+                else
+                    existing.stacks = Mathf.Max(existing.stacks, stacks);
+            }
+            else
+            {
+                statusEffects.Add(new ActiveStatusEffect { definition = status, stacks = stacks });
+            }
+        }
+
+        public virtual void Equip(EquipmentDefinition equipment)
+        {
+            if (EquippedItems.TryGetValue(equipment.slot, out var previous))
+                Unequip(previous);
+
+            EquippedItems[equipment.slot] = equipment;
+            foreach (var modifier in equipment.statModifiers)
+                ApplyStatModifier(modifier, equipment);
+            foreach (var trait in equipment.grantedTraits)
+                AddTrait(trait);
+        }
+
+        public virtual void Unequip(EquipmentDefinition equipment)
+        {
+            RemoveStatModifiersFromSource(equipment);
+            foreach (var trait in equipment.grantedTraits)
+                RemoveTrait(trait);
+
+            EquippedItems.Remove(equipment.slot);
+        }
+
+        /// <summary>Called by TurnManager at the start of this combatant's turn.</summary>
+        public virtual void OnTurnStart(BattleRoster roster, System.Random rng)
+        {
+            Block = 0; // classic "block decays on your own turn" rule - adjust to change the convention
+            RaiseChanged();
+            foreach (var status in statusEffects.ToArray())
+                EffectExecutor.Execute(status.definition.onTurnStartEffects, this, roster, null, rng);
+        }
+
+        /// <summary>Called by TurnManager at the end of this combatant's turn.</summary>
+        public virtual void OnTurnEnd(BattleRoster roster, System.Random rng)
+        {
+            foreach (var status in statusEffects.ToArray())
+                EffectExecutor.Execute(status.definition.onTurnEndEffects, this, roster, null, rng);
+
+            for (int i = statusEffects.Count - 1; i >= 0; i--)
+            {
+                var status = statusEffects[i];
+                if (status.definition.stackBehavior == StatusStackBehavior.Duration && status.definition.decayPerTurn > 0)
+                    status.stacks -= status.definition.decayPerTurn;
+                if (status.stacks <= 0)
+                    statusEffects.RemoveAt(i);
+            }
+        }
+    }
+}
