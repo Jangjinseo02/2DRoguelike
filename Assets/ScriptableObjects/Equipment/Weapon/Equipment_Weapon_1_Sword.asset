@@ -10,19 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c86946bf36748e441b7530b4e86a362b, type: 3}
-  m_Name: Equipment_
+  m_Name: Equipment_Weapon_1_Sword
   m_EditorClassIdentifier: Assembly-CSharp::Roguelike.Data.Equipment.EquipmentDefinition
-  equipmentId: 
-  displayName: 
-  description: 
+  equipmentId: 1
+  displayName: "\uB871\uC18C\uB4DC"
+  description: "\uACF5\uACA9 \uD0C0\uC785 : Slash"
   icon: {fileID: 0}
   slot: 0
-  weaponType: 0
+  attackType: 1
   armorType: 0
   rarity: 0
-  statModifiers:
-  - statType: 0
-    operation: 0
-    value: 0
+  statModifiers: []
   grantedTraits: []
   grantedCards: []

@@ -26,4 +26,6 @@ MonoBehaviour:
     count: 5
   startingTraits:
   - {fileID: 11400000, guid: a4ed00cf1f0be5148b28b160f5eed9bb, type: 2}
-  startingEquipment: []
+  startingEquipment:
+  - {fileID: 11400000, guid: 517c1b6e703401243a9890b2f8094c66, type: 2}
+  - {fileID: 11400000, guid: 537a0b9d4d2992b48aa8ef7cb3cfc6c8, type: 2}

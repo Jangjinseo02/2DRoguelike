@@ -184,6 +184,7 @@ MonoBehaviour:
   popupVisibleDuration: 0.5
   popupFadeDuration: 0.25
   popupRise: 60
+  popupComboWindow: 0.2
   energyText: {fileID: 88523189}
 --- !u!114 &35519818
 MonoBehaviour:
@@ -2067,6 +2068,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bootstraps
   turnEventChannel: {fileID: 11400000, guid: c3b83c80d68b2294ca8f46edf7102d6a, type: 2}
+  matchTable: {fileID: 11400000, guid: 42b9b60a4fa97674aa4d25dcfb6b0960, type: 2}
   characterDefinition: {fileID: 11400000, guid: e5753866d633a3246ad0db7fd416e944, type: 2}
   enemyDefinition: {fileID: 11400000, guid: d412f971edf11864686f42743131aa70, type: 2}
   uiManager: {fileID: 1971104478}
