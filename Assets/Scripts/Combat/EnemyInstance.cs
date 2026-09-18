@@ -1,5 +1,6 @@
 using System;
 using Roguelike.Data.Enemies;
+using Roguelike.Data.Equipment;
 
 namespace Roguelike.Combat
 {
@@ -12,7 +13,8 @@ namespace Roguelike.Combat
     {
         public EnemyDefinition Definition { get; }
 
-        public EnemyInstance(EnemyDefinition definition)
+        public EnemyInstance(EnemyDefinition definition, AttackArmorMatchTable matchTable) 
+        : base(matchTable)
         {
             Definition = definition;
             DisplayName = definition.displayName;

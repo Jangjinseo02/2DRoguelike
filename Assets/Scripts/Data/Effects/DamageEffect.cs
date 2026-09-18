@@ -8,6 +8,8 @@ namespace Roguelike.Data.Effects
     {
         [Tooltip("Added to instance.magnitude before dealing damage.")]
         public bool scalesWithStrength = true;
+        [Tooltip("무기 - 방어구 상성을 적용할지 여부. 출혈, 화상과 같은 상태이상 데미지일 경우 꺼주세요.")]
+        public bool useWeaponMatchup = true;
         public int hitCount = 1;
 
         public override void Execute(EffectContext context, EffectInstance instance)
@@ -20,7 +22,12 @@ namespace Roguelike.Data.Effects
             for (int hit = 0; hit < hitCount; hit++)
             {
                 foreach (var target in context.Targets)
-                    target.TakeDamage(damage);
+                {
+                    if(useWeaponMatchup && context.Source != null) 
+                        target.TakeDamage(damage, context.Source.CurrentAttackType, false);
+                    else 
+                        target.TakeDamage(damage); 
+                } 
             }
         }
     }

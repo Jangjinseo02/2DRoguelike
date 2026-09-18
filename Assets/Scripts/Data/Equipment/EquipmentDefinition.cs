@@ -14,22 +14,21 @@ namespace Roguelike.Data.Equipment
         Trinket
     }
 
-    public enum WeaponType
+    public enum AttackType
     {
         None,
-        Sword,
-        Axe,
-        Bow,
-        Staff,
-        Dagger
+        Slash, // 롱소드, 도끼
+        Blunt, // 망치, 철퇴
+        Pierce, // 활, 단검
+        Magic, // 스태프
     }
 
     public enum ArmorType
     {
         None,
-        Light,
-        Medium,
-        Heavy
+        Light, // 천갑
+        Medium, // 경갑
+        Heavy // 중갑
     }
 
     [CreateAssetMenu(menuName = "Roguelike/Equipment/Equipment Definition", fileName = "Equipment_")]
@@ -40,7 +39,7 @@ namespace Roguelike.Data.Equipment
         [TextArea] public string description;
         public Sprite icon;
         public EquipmentSlot slot;
-        public WeaponType weaponType;
+        public AttackType attackType;
         public ArmorType armorType;
         public Rarity rarity;
 
@@ -55,7 +54,7 @@ namespace Roguelike.Data.Equipment
         private void OnValidate()
         {
             if (slot != EquipmentSlot.Weapon)
-                weaponType = WeaponType.None;
+                attackType = AttackType.None;
             if (slot != EquipmentSlot.Armor)
                 armorType = ArmorType.None;
         }
