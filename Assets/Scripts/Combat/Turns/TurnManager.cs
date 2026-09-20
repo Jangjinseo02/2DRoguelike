@@ -58,7 +58,9 @@ namespace Roguelike.Combat.Turns
         public void StartBattle()
         {
             SetPhase(TurnPhase.BattleStart);
-            TriggerTraits(TriggerType.OnBattleStart);
+            TriggerTraits(TriggerType.OnBattleStart, player);
+            foreach(var enemy in AliveEnemies())
+                TriggerTraits(TriggerType.OnBattleStart, enemy);
             UnityEngine.Debug.Log($"Battle Started: Player {player.Definition.displayName} vs {enemies.Count} enemies.");
             BeginPlayerTurn();
         }
@@ -85,7 +87,7 @@ namespace Roguelike.Combat.Turns
             if (CurrentPhase != TurnPhase.PlayerMain) return;
 
             SetPhase(TurnPhase.PlayerTurnEnd);
-            TriggerTraits(TriggerType.OnTurnEnd);
+            TriggerTraits(TriggerType.OnTurnEnd, player);
             player.OnTurnEnd(roster, rng);
             UnityEngine.Debug.Log($"Player Turn Ended: {player.Definition.displayName}");
 
@@ -107,7 +109,7 @@ namespace Roguelike.Combat.Turns
             TurnNumber++;
             SetPhase(TurnPhase.PlayerTurnStart);
             player.OnTurnStart(roster, rng);
-            TriggerTraits(TriggerType.OnTurnStart);
+            TriggerTraits(TriggerType.OnTurnStart, player);
 
             if (IsBattleOver()) // a start-of-turn status tick can be lethal
             {
@@ -121,9 +123,12 @@ namespace Roguelike.Combat.Turns
 
         private void BeginEnemyTurn()
         {
-            UnityEngine.Debug.Log($"Enemy Turn Started: {string.Join(", ", AliveEnemies().Select(e => e.DisplayName))}");
+            UnityEngine.Debug.Log($"Enemy Turn Started: {string.Join(", ", AliveEnemies().Select(e => e.DisplayName))}");               
             foreach (var enemy in AliveEnemies())
+            {
                 enemy.OnTurnStart(roster, rng);
+                TriggerTraits(TriggerType.OnTurnStart, enemy);
+            }
 
             if (IsBattleOver())
             {
@@ -169,7 +174,11 @@ namespace Roguelike.Combat.Turns
         {
             SetPhase(TurnPhase.EnemyTurnEnd);
             foreach (var enemy in AliveEnemies())
+            {
                 enemy.OnTurnEnd(roster, rng);
+                TriggerTraits(TriggerType.OnTurnEnd, enemy);
+            }
+                
 
             if (IsBattleOver())
                 EndBattle();
@@ -182,7 +191,8 @@ namespace Roguelike.Combat.Turns
             if (CurrentPhase == TurnPhase.BattleEnd) return;
 
             UnityEngine.Debug.Log($"Battle Ended: {(player.IsAlive ? "Victory" : "Defeat")}");
-            TriggerTraits(TriggerType.OnBattleEnd);
+            // 적은 전투가 끝나면 사라지니 전투 종료 특성은 의미 없음 - 플레이어만 발동 (죽으면서 남기는 효과는 OnDeath 쪽)
+            if(player.IsAlive) TriggerTraits(TriggerType.OnBattleEnd, player);
             SetPhase(TurnPhase.BattleEnd);
         }
 
@@ -190,14 +200,14 @@ namespace Roguelike.Combat.Turns
 
         private IEnumerable<EnemyInstance> AliveEnemies() => enemies.Where(e => e.IsAlive);
 
-        private void TriggerTraits(TriggerType trigger)
+        private void TriggerTraits(TriggerType trigger, CombatantInstance owner)
         {
-            foreach (var trait in player.Traits)
+            foreach (var trait in owner.Traits)
             {
                 foreach (var entry in trait.triggeredEffects)
                 {
                     if (entry.trigger == trigger)
-                        EffectExecutor.Execute(entry.effects, player, roster, null, rng);
+                        EffectExecutor.Execute(entry.effects, owner, roster, null, rng);
                 }
             }
         }

@@ -22,7 +22,7 @@ namespace Roguelike.Combat
             CurrentHealth = MaxHealth;
 
             foreach(var trait in definition.startingTraits)
-                AddTrait(trait);
+                AddTrait(trait, this);
             foreach(var eqipment in definition.startingEquipment)
                 Equip(eqipment);
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Roguelike.Data;
 using Roguelike.Data.Equipment;
@@ -24,7 +25,9 @@ namespace Roguelike.Combat
         public ArmorType CurrentArmorType => EquippedItems.TryGetValue(EquipmentSlot.Armor, out var armor) && armor != null ? armor.armorType : ArmorType.None;
 
         public Dictionary<EquipmentSlot, EquipmentDefinition> EquippedItems { get; } = new Dictionary<EquipmentSlot, EquipmentDefinition>();
-        public List<TraitDefinition> Traits { get; } = new List<TraitDefinition>();
+        //public List<TraitDefinition> Traits { get; } = new List<TraitDefinition>();
+        private readonly List<ActiveTrait> traitGrants = new List<ActiveTrait>();
+        public IEnumerable<TraitDefinition> Traits => traitGrants.Select(g => g.definition).Distinct(); // 체크된 특성들 중 중복만 제거해서 traits list 반환
 
         protected readonly AttackArmorMatchTable matchTable;
         protected readonly List<ActiveStatModifier> statModifiers = new List<ActiveStatModifier>();
@@ -47,17 +50,26 @@ namespace Roguelike.Combat
             this.matchTable = matchTable;
         }
 
-        public void AddTrait(TraitDefinition trait)
+        public void AddTrait(TraitDefinition trait, object source)
         {
-            Traits.Add(trait);
-            foreach (var modifier in trait.passiveStatModifiers)
-                ApplyStatModifier(modifier, trait);
+            bool ready = traitGrants.Exists(g => g.definition == trait);
+            //Traits.Add(trait);
+            traitGrants.Add(new ActiveTrait() {definition = trait, source = source} ); // 누가 특성을 주는지 체크
+            if(!ready) // 리스트 내부에 활성화된 중복 특성이 없다면.
+            {
+                foreach (var modifier in trait.passiveStatModifiers)
+                    ApplyStatModifier(modifier, trait); // 특성 효과를 추가
+            }
         }
 
-        public void RemoveTrait(TraitDefinition trait)
+        public void RemoveTrait(TraitDefinition trait, object source)
         {
-            Traits.Remove(trait);
-            RemoveStatModifiersFromSource(trait);
+            int index = traitGrants.FindIndex(g => g.definition == trait && g.source == source);
+            if(index == -1) return; // 출처가 없으면 지울 특성이 없음.
+            traitGrants.RemoveAt(index); // source 정보에 대한 특성이 있다면 지운다.
+            
+            if(!traitGrants.Exists(g => g.definition == trait)) // 리스트 내부에 특성 정보가 없다면.
+                RemoveStatModifiersFromSource(trait); // 특성 효과를 지움
         }
 
         protected void RaiseChanged() => Changed?.Invoke();
@@ -172,14 +184,14 @@ namespace Roguelike.Combat
             foreach (var modifier in equipment.statModifiers)
                 ApplyStatModifier(modifier, equipment);
             foreach (var trait in equipment.grantedTraits)
-                AddTrait(trait);
+                AddTrait(trait, equipment);
         }
 
         public virtual void Unequip(EquipmentDefinition equipment)
         {
             RemoveStatModifiersFromSource(equipment);
             foreach (var trait in equipment.grantedTraits)
-                RemoveTrait(trait);
+                RemoveTrait(trait, equipment);
 
             EquippedItems.Remove(equipment.slot);
         }

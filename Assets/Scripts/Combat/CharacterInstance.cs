@@ -51,7 +51,7 @@ namespace Roguelike.Combat
             ShuffleDrawPile();
 
             foreach (var trait in definition.startingTraits)
-                AddTrait(trait);
+                AddTrait(trait, this);
 
             foreach (var equipment in definition.startingEquipment)
                 Equip(equipment);
