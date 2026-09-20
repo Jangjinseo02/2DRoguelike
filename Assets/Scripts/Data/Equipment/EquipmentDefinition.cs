@@ -53,10 +53,11 @@ namespace Roguelike.Data.Equipment
 
         private void OnValidate()
         {
-            if (slot != EquipmentSlot.Weapon)
-                attackType = AttackType.None;
-            if (slot != EquipmentSlot.Armor)
-                armorType = ArmorType.None;
+            if (slot != EquipmentSlot.Weapon && attackType != AttackType.None)
+            { attackType = AttackType.None; Debug.Log($"{name}: 슬롯이 Attack이 아니라서 AttackType을 지웁니다."); }
+                
+            if (slot != EquipmentSlot.Armor && armorType != ArmorType.None)
+            { armorType = ArmorType.None; Debug.Log($"{name}: 슬롯이 Armor가 아니라서 ArmorType을 지웁니다."); }
         }
     }
 }

@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 092e93b7a391e00448a31e40f481a8bd, type: 3}
-  m_Name: Status_
+  m_Name: Status_1_Penetration
   m_EditorClassIdentifier: Assembly-CSharp::Roguelike.Data.Status.StatusEffectDefinition
-  statusId: 
-  displayName: 
-  description: 
+  statusId: 1
+  displayName: Penetration
+  description: "\uAD00\uD1B5 \uC2A4\uD0DD\uC744 +1 \uC5BB\uC2B5\uB2C8\uB2E4."
   icon: {fileID: 0}
   isDebuff: 0
+  grantsPenetration: 1
   stackBehavior: 0
   decayPerTurn: 0
   onTurnStartEffects: []

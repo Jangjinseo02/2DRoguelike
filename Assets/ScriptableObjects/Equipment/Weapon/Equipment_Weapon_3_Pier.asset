@@ -21,5 +21,6 @@ MonoBehaviour:
   armorType: 0
   rarity: 0
   statModifiers: []
-  grantedTraits: []
+  grantedTraits:
+  - {fileID: 11400000, guid: f81d9a56b490c1e47a55242c6f3e0de3, type: 2}
   grantedCards: []

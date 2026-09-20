@@ -16,6 +16,7 @@ namespace Roguelike.Combat
         ArmorType CurrentArmorType { get; }
 
         float GetStat(StatType type);
+        bool TryConsumePenetration(); // 관통 스택이 있으면 1 소모하고 true;
         void TakeDamage(int amount);
         void TakeDamage(int amount, AttackType attackType, bool penetrates);
         void GainBlock(int amount);

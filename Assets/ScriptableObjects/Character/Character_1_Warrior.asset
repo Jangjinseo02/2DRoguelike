@@ -24,8 +24,9 @@ MonoBehaviour:
   startingDeck:
   - card: {fileID: 11400000, guid: 868ef4a3911c2144ebc292199449d7d5, type: 2}
     count: 5
-  startingTraits:
-  - {fileID: 11400000, guid: 467f3aecdb1dcbb45988c6bd1d5eeb1b, type: 2}
+  - card: {fileID: 11400000, guid: c0cb47ff0f183ad4baeedefe8ceee527, type: 2}
+    count: 1
+  startingTraits: []
   startingEquipment:
   - {fileID: 11400000, guid: 537a0b9d4d2992b48aa8ef7cb3cfc6c8, type: 2}
-  - {fileID: 11400000, guid: 517c1b6e703401243a9890b2f8094c66, type: 2}
+  - {fileID: 11400000, guid: 6a106098b6a7385488fe5b81b07d92e1, type: 2}

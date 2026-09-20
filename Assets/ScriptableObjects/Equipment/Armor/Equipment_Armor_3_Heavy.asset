@@ -16,9 +16,9 @@ MonoBehaviour:
   displayName: "\uC911\uAC11\uC637"
   description: "\uBC29\uC5B4 \uD0C0\uC785 : Heavy"
   icon: {fileID: 0}
-  slot: 0
+  slot: 1
   attackType: 0
-  armorType: 0
+  armorType: 3
   rarity: 0
   statModifiers: []
   grantedTraits: []

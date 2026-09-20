@@ -102,6 +102,17 @@ namespace Roguelike.Combat
             return hasOverride ? overrideValue : sum * multiplier;
         }
 
+        public bool TryConsumePenetration()
+        {
+            var status = statusEffects.Find(g => g.definition != null && g.definition.grantsPenetration);
+            if(status == null) return false;
+            
+            status.stacks--;
+            if(status.stacks == 0) statusEffects.Remove(status);
+            return true;
+        } 
+        
+
         public virtual void TakeDamage(int amount)
         {
             if (amount <= 0 || !IsAlive) return;

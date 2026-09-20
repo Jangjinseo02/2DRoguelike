@@ -18,13 +18,14 @@ namespace Roguelike.Data.Effects
             if (scalesWithStrength && context.Source != null)
                 amount += context.Source.GetStat(StatType.Strength);
 
+            bool penetrates = useWeaponMatchup && context.Source != null && instance.targetType == TargetType.SingleEnemy && context.Source.TryConsumePenetration();
             int damage = Mathf.Max(0, Mathf.RoundToInt(amount));
             for (int hit = 0; hit < hitCount; hit++)
             {
                 foreach (var target in context.Targets)
                 {
                     if(useWeaponMatchup && context.Source != null) 
-                        target.TakeDamage(damage, context.Source.CurrentAttackType, false);
+                        target.TakeDamage(damage, context.Source.CurrentAttackType, penetrates);
                     else 
                         target.TakeDamage(damage); 
                 } 

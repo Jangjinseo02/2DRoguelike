@@ -21,6 +21,6 @@ MonoBehaviour:
     targetType: 2
     magnitude: 5
     stacks: 2
-  startingTraits:
-  - {fileID: 11400000, guid: 467f3aecdb1dcbb45988c6bd1d5eeb1b, type: 2}
-  startingEquipment: []
+  startingTraits: []
+  startingEquipment:
+  - {fileID: 11400000, guid: a3356a4f69911b14499d8f1362efe287, type: 2}

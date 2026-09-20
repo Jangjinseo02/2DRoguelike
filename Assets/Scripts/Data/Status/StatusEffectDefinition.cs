@@ -20,6 +20,8 @@ namespace Roguelike.Data.Status
         [TextArea] public string description;
         public Sprite icon;
         public bool isDebuff;
+        [Tooltip("이 상태이상을 가진 전투원의 단일 공격이 관통이 됩니다.(스택 1 소모)")]
+        public bool grantsPenetration;
         public StatusStackBehavior stackBehavior;
 
         [Tooltip("Stacks removed at the end of the owner's turn. 0 = never decays on its own (e.g. Strength).")]
