@@ -11,13 +11,15 @@ namespace Roguelike.Data.Effects
         [Tooltip("무기 - 방어구 상성을 적용할지 여부. 출혈, 화상과 같은 상태이상 데미지일 경우 꺼주세요.")]
         public bool useWeaponMatchup = true;
         public int hitCount = 1;
+        public float damagePerStack = 0;
 
         public override void Execute(EffectContext context, EffectInstance instance)
         {
             float amount = instance.magnitude;
             if (scalesWithStrength && context.Source != null)
                 amount += context.Source.GetStat(StatType.Strength);
-
+            
+            amount += damagePerStack * context.CurrentStacks; // 스택당 추가 피해
             bool penetrates = useWeaponMatchup && context.Source != null && instance.targetType == TargetType.SingleEnemy && context.Source.TryConsumePenetration();
             int damage = Mathf.Max(0, Mathf.RoundToInt(amount));
             for (int hit = 0; hit < hitCount; hit++)

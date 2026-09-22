@@ -213,19 +213,19 @@ namespace Roguelike.Combat
             Block = 0; // classic "block decays on your own turn" rule - adjust to change the convention
             RaiseChanged();
             foreach (var status in statusEffects.ToArray())
-                EffectExecutor.Execute(status.definition.onTurnStartEffects, this, roster, null, rng);
+                EffectExecutor.Execute(status.definition.onTurnStartEffects, this, roster, null, rng, status.stacks);
         }
 
         /// <summary>Called by TurnManager at the end of this combatant's turn.</summary>
         public virtual void OnTurnEnd(BattleRoster roster, System.Random rng)
         {
             foreach (var status in statusEffects.ToArray())
-                EffectExecutor.Execute(status.definition.onTurnEndEffects, this, roster, null, rng);
+                EffectExecutor.Execute(status.definition.onTurnEndEffects, this, roster, null, rng, status.stacks);
 
             for (int i = statusEffects.Count - 1; i >= 0; i--)
             {
                 var status = statusEffects[i];
-                if (status.definition.stackBehavior == StatusStackBehavior.Duration && status.definition.decayPerTurn > 0)
+                if (status.definition.decayPerTurn > 0)
                     status.stacks -= status.definition.decayPerTurn;
                 if (status.stacks <= 0)
                     statusEffects.RemoveAt(i);

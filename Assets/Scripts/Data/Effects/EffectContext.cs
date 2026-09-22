@@ -8,5 +8,6 @@ namespace Roguelike.Data.Effects
     {
         public ICombatant Source;
         public IReadOnlyList<ICombatant> Targets;
+        public int CurrentStacks; //상태이상 틱일 때만 채워짐, 그 외에는 0
     }
 }
