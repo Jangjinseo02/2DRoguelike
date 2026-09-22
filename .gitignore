@@ -66,6 +66,7 @@ sysinfo.txt
 
 # Claude Code
 CLAUDE.md
+PROGRESS.md
 .claude/settings.local.json
 
 # Crashlytics generated file
