@@ -26,6 +26,8 @@ MonoBehaviour:
     count: 5
   - card: {fileID: 11400000, guid: c0cb47ff0f183ad4baeedefe8ceee527, type: 2}
     count: 1
+  - card: {fileID: 11400000, guid: cd683d12034632546aab710ea532d7f6, type: 2}
+    count: 1
   startingTraits: []
   startingEquipment:
   - {fileID: 11400000, guid: 537a0b9d4d2992b48aa8ef7cb3cfc6c8, type: 2}

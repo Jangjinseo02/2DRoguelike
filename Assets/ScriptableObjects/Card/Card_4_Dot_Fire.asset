@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5affdf18b257dd64fba66f20d68679cb, type: 3}
+  m_Name: Card_4_Dot_Fire
+  m_EditorClassIdentifier: Assembly-CSharp::Roguelike.Data.Cards.CardDefinition
+  cardId: 4
+  displayName: "\uD654\uC0C1"
+  description: "\uC801\uC5D0\uAC8C 5\uD134\uAC04 5\uC758 \uB370\uBBF8\uC9C0\uB97C
+    \uC785\uD788\uB294 \uD654\uC0C1\uC744 \uC785\uD799\uB2C8\uB2E4."
+  icon: {fileID: 0}
+  cardType: 3
+  rarity: 1
+  energyCost: 1
+  exhausts: 0
+  innate: 0
+  effects:
+  - effect: {fileID: 11400000, guid: 9950a228c9d9d9441bbe7cd15f422659, type: 2}
+    targetType: 2
+    magnitude: 0
+    stacks: 5
+  upgradedVersion: {fileID: 0}
